@@ -46,9 +46,10 @@ namespace Project0
             Loans.Add(new Loan { Balance = amount });
         }
 
-        public void AddTD(decimal amount)
+        //not used to simulate time passing in the UI
+        public void AddTD(decimal amount, int years)
         {
-            TermDeposits.Add(new TermDeposit { Amount = amount });
+            TermDeposits.Add(new TermDeposit { Amount = amount, TermYears = years, DateCreated = DateTime.Now });
         }
 
         public void TransferFunds(Account TranFrom, Account TranTo, decimal amount)

@@ -4,10 +4,15 @@ using System.Text;
 
 namespace Project0
 {
-    class LoanPayment
+    class WithdrawlToLoan : Transaction
     {
         public DateTime PaymentTime { get; set; }
         public int LoanID { get; set; }
         public decimal Amount { get; set; }
+
+        public override TransactionType Type()
+        {
+            return TransactionType.WithdrawlToLoan;
+        }
     }
 }

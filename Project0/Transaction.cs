@@ -10,7 +10,9 @@ namespace Project0
         Withdrawl,
         Deposit,
         TransferOut,
-        TransferIn
+        TransferIn,
+        WithdrawlToLoan,
+        DepositFromTermDeposit
     }
 
     abstract class Transaction

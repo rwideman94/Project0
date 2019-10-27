@@ -7,17 +7,23 @@ namespace Project0
     class Loan
     {
         public int LoanID = Bank.nextLoanID++;
+        public decimal Principal { get; set; }
         public decimal Balance { get; set; }
-        public double InterestRate { get; } = 0.25;
+        public decimal InterestRate { get; } = 0.25M;
         public bool PaidOff { get; set; } = false;
-        public List<LoanPayment> payments = new List<LoanPayment>();
+        public List<WithdrawlToLoan> payments = new List<WithdrawlToLoan>();
+
+        public Loan()
+        {
+            Balance = Principal + (Principal * InterestRate);
+        }
 
         public void PayAmount(decimal amount)
         {
             if (amount <= Balance)
             {
                 Balance -= amount;
-                payments.Add(new LoanPayment
+                payments.Add(new WithdrawlToLoan
                 {Amount = amount, LoanID = this.LoanID, PaymentTime = DateTime.Now
                 });
             }

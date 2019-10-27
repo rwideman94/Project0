@@ -6,46 +6,49 @@ namespace Project0
 {
     static public class Utility
     {
+        public static int ExitCode = -5241119;
+        public static int MainCode = -1311114;
 
-        public static int IntReader()
+        public static int ReadInt()
         {
-            string intString = stringReader();
-            int readInt = IntParse(intString);
+            string intString = ReadString();
+            int readInt = ParseInt(intString);
             return readInt;
         }
 
-        public static decimal DecReader()
+        public static decimal ReadDec()
         {
-            string decString = stringReader();
-            decimal readDec = DecParse(decString);
+            string decString = ReadString();
+            decimal readDec = ParseDec(decString);
             return readDec;
         }
 
-        public static string stringReader()
+        public static string ReadString()
         {
             string input = "";
             try
             {
-                input = Console.ReadLine();
+                input = Console.ReadLine().Trim();
             }
             catch (Exception)
             {
                 return null;
             }
+            input = CheckCommands(input);
             return input;
         }
 
-        public static int CheckCommands(string s)
+        public static string CheckCommands(string s)
         {
             if (CheckForExit(s))
             {
-                return -1;
+                return ExitCode.ToString();
             } else if (CheckForMain(s))
             {
-                return 1;
+                return MainCode.ToString();
             } else
             {
-                return 0;
+                return s;
             }
         }
 
@@ -67,7 +70,7 @@ namespace Project0
             return false;
         }
 
-        public static int IntParse(string intString)
+        public static int ParseInt(string intString)
         {
             int parsedInt = 0;
             try
@@ -81,7 +84,7 @@ namespace Project0
             return parsedInt;
         }
 
-        public static decimal DecParse(string decString)
+        public static decimal ParseDec(string decString)
         {
             decimal parsedDec = 0;
             try

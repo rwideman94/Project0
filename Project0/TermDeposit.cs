@@ -9,33 +9,36 @@ namespace Project0
 
         public int TDID = Bank.nextTDID++;
         public decimal Amount { get; set; }
-        public double InterestRate { get; } = 0.15;
+        public decimal withdrawlAmount { get; set; }
+        public decimal InterestRate { get; } = 0.15;
         public int TermYears { get; set; }
-        public bool reachedMaturity { get; set; } = false;
         public DateTime DateCreated { get; set; }
 
-        // determine # of years since creation
-        //   ((int)(((DateTime.Now).Subtract(DateCreated)).TotalDays) / 365) < TermYears
-
-        public void withdraw()
+        public TermDeposit()
         {
-            //if ()
-            //{
-                Amount = 0;
-            //}
+            withdrawlAmount = Amount + (Amount * InterestRate);
         }
 
-        public void Print()
+        public bool withdraw()
         {
-            Console.WriteLine($"Term Deposit ID #{TDID}");
-            Console.WriteLine($"Currently holding ${Amount} at a {InterestRate}% intreset rate.");
-            if (reachedMaturity)
+            if (MaturityCheck())
             {
-                Console.WriteLine("I'm ready to be withdrawn.");
-            }else
-            {
-                Console.WriteLine("I still haven't reached maturity yet.");
+                Amount = 0;
+                return true;
             }
+            return false;
+        }
+
+        public bool MaturityCheck()
+        {
+            TimeSpan timeDifference = (DateTime.Now).Subtract(DateCreated);
+            int daysSinceCreation = (int)timeDifference.TotalDays;
+            int yearsSinceCreation = daysSinceCreation / 365;
+            if (yearsSinceCreation >= TermYears)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

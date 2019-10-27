@@ -33,6 +33,17 @@ namespace Project0
             }
         }
 
+        public void DepositFromTermDeposit(int termDID, decimal amount)
+        {
+            Balance += amount;
+            transactions.Add(new DepositFromTermDeposit
+            {
+                AccountID = this.AccountID,
+                Amount = amount,
+                TDID = termDID
+            });
+        }
+
         public virtual void Withdraw(decimal amount)
         {
             if (amount > 0)
@@ -45,6 +56,17 @@ namespace Project0
                     Amount = amount
                 });
             }
+        }
+
+        public void WithdrawToLoan(int loanID, decimal amount)
+        {
+            Balance -= amount;
+            transactions.Add(new WithdrawToLoan
+            {
+                AccountID = this.AccountID,
+                LoanID = loanID,
+                Amount = amount
+            });
         }
 
         abstract public Bank.AccountType AccountType();
