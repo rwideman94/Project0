@@ -63,7 +63,7 @@ namespace Project0
 
         public static bool CheckForMain(string s)
         {
-            if (s == "Main Menu" || s == "Main menu" || s == "main Menu" || s == "main menu")
+            if (s == "Main" || s == "main")
             {
                 return true;
             }

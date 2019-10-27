@@ -12,7 +12,7 @@ namespace Project0
         private delegate void Menu();
         static Menu menu;
         private readonly string HelpMessage = "Type \"Main\" at any input to return to the main menu.\n" +
-            "Or,Type \"Exit\" at any input to close the application.";
+            "Type \"Exit\" at any input to close the application.";
 
         public void Run()
         {
@@ -272,7 +272,7 @@ namespace Project0
         }
         private void CustomerSummary()
         {
-            if (currentCustomer.TotalNumAccts > 0)
+            if (currentCustomer.TotalNumAccts > 0 || currentCustomer.Loans.Count > 0 || currentCustomer.TermDeposits.Count > 0)
             {
                 Console.WriteLine($"Accounts associated with Customer ID#{currentCustomer.CustomerID}");
                 Console.WriteLine();
@@ -732,12 +732,18 @@ namespace Project0
                 try
                 {
                     creationDate = Convert.ToDateTime(dateString);
+
+                    //needed to allow for custom date
                     TermDeposit newTD = new TermDeposit
                     {
                         Amount = amount,
                         TermYears = termYears,
-                        DateCreated = creationDate
+                        DateCreated = creationDate,
+                        withdrawlAmount = amount + (amount * TermDeposit.InterestRate)
                     };
+                    currentCustomer.TermDeposits.Add(newTD);
+                    //
+
                     Console.WriteLine($"New Term Deposit #{newTD.TDID} made in the amount of {amount}." +
                         $"\nIn {newTD.TermYears} year(s) it will be ready for withdrawl in the " +
                         $"amount of {newTD.withdrawlAmount}.\nPress Enter to return to the main menu.");
@@ -763,6 +769,7 @@ namespace Project0
         {
             if (currentCustomer.Loans.Count > 0)
             {
+                PrintLoans();
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Which loan would like to make a payment on?");
                 int loanID = Utility.ReadInt();
@@ -835,19 +842,29 @@ namespace Project0
                                         {
                                             if (amount <= payAcct.Balance)
                                             {
-                                                Console.WriteLine($"Paying {amount}...");
-                                                payAcct.WithdrawToLoan(loanID, amount);
-                                                loan.PayAmount(amount);
-                                                Console.WriteLine($"Paid {amount} from account #{payAcctID}.");
-                                                PrintLoan(loan);
-                                                Console.WriteLine("Press Enter to return to the main menu.");
-                                                Console.ReadLine();
-                                                menu = MainMenu;
-                                                return;
+                                                if (amount <= loan.Balance)
+                                                {
+                                                    Console.WriteLine($"Paying {amount}...");
+                                                    payAcct.WithdrawToLoan(loanID, amount);
+                                                    loan.PayAmount(amount);
+                                                    Console.WriteLine($"Paid {amount} from account #{payAcctID}.");
+                                                    PrintLoan(loan);
+                                                    Console.WriteLine("Press Enter to return to the main menu.");
+                                                    Console.ReadLine();
+                                                    menu = MainMenu;
+                                                    return;
+                                                } else
+                                                {
+                                                    Console.WriteLine("This loan is for less than that amount. Please enter a valid amount.\n" +
+                                                       "Press Enter to try again.");
+                                                    Console.ReadLine();
+                                                    menu = PayLoan;
+                                                    return;
+                                                }
                                             }
                                             else
                                             {
-                                                Console.WriteLine("You incur a negative balance in paying off a loan.\n" +
+                                                Console.WriteLine("You can't incur a negative balance in paying off a loan.\n" +
                                                     "Press Enter to try again.");
                                                 Console.ReadLine();
                                                 menu = PayLoan;
@@ -918,6 +935,7 @@ namespace Project0
         {
             if (currentCustomer.TermDeposits.Count > 0)
             {
+                PrintTermDeposits();
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Which Term Deposit would like to make withdraw?");
                 int TDID = Utility.ReadInt();
@@ -1121,6 +1139,22 @@ namespace Project0
                 }
             }
         }
+        private void PrintLoans()
+        {
+            Console.WriteLine("***Loans***");
+            foreach (Loan loan in currentCustomer.Loans)
+            {
+                PrintLoan(loan);
+            }
+        }
+        private void PrintTermDeposits()
+        {
+            Console.WriteLine("***Term Deposits***");
+            foreach (TermDeposit termD in currentCustomer.TermDeposits)
+            {
+                PrintTD(termD);
+            }
+        }
         private void PrintLoan(Loan loan)
         {
             Console.Write($"Term Deposit ID #{loan.LoanID}  :  ");
@@ -1147,7 +1181,6 @@ namespace Project0
             foreach (BusinessAccount BA in customer.BAccounts)
             {
                 PrintAccount(BA);
-                Console.WriteLine();
             }
             Console.WriteLine();
             Console.WriteLine("***Checking Accounts***");
@@ -1156,17 +1189,9 @@ namespace Project0
                 PrintAccount(CA);
             }
             Console.WriteLine();
-            Console.WriteLine("***Loans***");
-            foreach (Loan loan in customer.Loans)
-            {
-                PrintLoan(loan);
-            }
+            PrintLoans();
             Console.WriteLine();
-            Console.WriteLine("***Term Deposits***");
-            foreach (TermDeposit TD in customer.TermDeposits)
-            {
-                PrintTD(TD);
-            }
+            PrintTermDeposits();
         }
         private void ListTransactions(Account acct)
         {
@@ -1201,7 +1226,7 @@ namespace Project0
                 menu = Exit;
                 return true;
             }
-            else if (s == Utility.ExitCode.ToString())
+            else if (s == Utility.MainCode.ToString())
             {
                 menu = MainMenu;
                 return true;

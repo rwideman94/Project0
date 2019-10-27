@@ -9,14 +9,9 @@ namespace Project0
         public int LoanID = Bank.nextLoanID++;
         public decimal Principal { get; set; }
         public decimal Balance { get; set; }
-        public decimal InterestRate { get; } = 0.25M;
+        public static decimal InterestRate { get; } = 0.25M;
         public bool PaidOff { get; set; } = false;
         public List<WithdrawlToLoan> payments = new List<WithdrawlToLoan>();
-
-        public Loan()
-        {
-            Balance = Principal + (Principal * InterestRate);
-        }
 
         public void PayAmount(decimal amount)
         {

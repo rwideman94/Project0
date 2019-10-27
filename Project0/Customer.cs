@@ -43,7 +43,7 @@ namespace Project0
 
         public void AddLoan(decimal amount)
         {
-            Loans.Add(new Loan { Balance = amount });
+            Loans.Add(new Loan { Principal = amount, Balance = amount + (amount * Loan.InterestRate) });
         }
 
         //not used to simulate time passing in the UI
