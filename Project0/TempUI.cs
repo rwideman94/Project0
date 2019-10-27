@@ -11,10 +11,9 @@ namespace Project0
         private Bank bank = new Bank();
         private delegate void Menu();
         static Menu menu;
-
-
         private readonly string HelpMessage = "Type \"Main\" at any input to return to the main menu.\n" +
             "Or,Type \"Exit\" at any input to close the application.";
+
         public void Run()
         {
             Console.WriteLine("Welcome to The Central Bank of Awfully Sinful Sailors (CBASS)");
@@ -31,9 +30,14 @@ namespace Project0
                 "***Main Menu***\n" +
                 "Please enter your selection.\n" +
                 "A: Returning Customer\n" +
-                "B: Register New customer" +
+                "B: Register New customer\n" +
                 "Type \"Exit\" to close the application.\n");
             string input = Utility.ReadString();
+            if (input == Utility.ExitCode.ToString())
+            {
+                menu = Exit;
+                return;
+            }
             switch (input)
             {
                 case "a":
@@ -135,12 +139,6 @@ namespace Project0
                                 return;
                             }
                         } while (true);
-                    }
-                case "exit":
-                case "Exit":
-                    {
-                        menu = Exit;
-                        return;
                     }
                 default:
                     {

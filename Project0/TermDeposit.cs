@@ -10,7 +10,7 @@ namespace Project0
         public int TDID = Bank.nextTDID++;
         public decimal Amount { get; set; }
         public decimal withdrawlAmount { get; set; }
-        public decimal InterestRate { get; } = 0.15;
+        public decimal InterestRate { get; } = 0.15M;
         public int TermYears { get; set; }
         public DateTime DateCreated { get; set; }
 

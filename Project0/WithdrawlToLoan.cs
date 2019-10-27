@@ -8,8 +8,6 @@ namespace Project0
     {
         public DateTime PaymentTime { get; set; }
         public int LoanID { get; set; }
-        public decimal Amount { get; set; }
-
         public override TransactionType Type()
         {
             return TransactionType.WithdrawlToLoan;

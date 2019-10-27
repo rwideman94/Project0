@@ -6,8 +6,8 @@ namespace Project0
 {
     static public class Utility
     {
-        public static int ExitCode = -5241119;
-        public static int MainCode = -1311114;
+        public static int ExitCode { get; }  = -5241119;
+        public static int MainCode { get; } = -1311114;
 
         public static int ReadInt()
         {
