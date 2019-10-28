@@ -176,7 +176,6 @@ namespace Project0
                 return;
             }
 
-
             switch (input)
             {
                 case "a":
