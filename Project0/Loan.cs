@@ -11,14 +11,14 @@ namespace Project0
         public decimal Balance { get; set; }
         public static decimal InterestRate { get; } = 0.25M;
         public bool PaidOff { get; set; } = false;
-        public List<WithdrawlToLoan> payments = new List<WithdrawlToLoan>();
+        public List<LoanPayment>payments = new List<LoanPayment>();
 
         public void PayAmount(decimal amount)
         {
             if (amount <= Balance)
             {
                 Balance -= amount;
-                payments.Add(new WithdrawlToLoan
+                payments.Add(new LoanPayment
                 {Amount = amount, LoanID = this.LoanID, PaymentTime = DateTime.Now
                 });
             }

@@ -15,6 +15,7 @@ namespace Project0
         public List<Loan> Loans { get; set; } = new List<Loan>();
         public List<TermDeposit> TermDeposits { get; set; } = new List<TermDeposit>();
         public int TotalNumAccts { get; set; }
+        public int TotalActiveAccts { get; set; }
 
         public void AddAccount(Bank.AccountType type)
         {
@@ -24,12 +25,14 @@ namespace Project0
                     {
                         BAccounts.Add(new BusinessAccount());
                         TotalNumAccts++;
+                        TotalActiveAccts++;
                         break;
                     }
                 case Bank.AccountType.Checking:
                     {
                         CAccounts.Add(new CheckingAccount());
                         TotalNumAccts++;
+                        TotalActiveAccts++;
                         break;
                     }
             }
@@ -37,8 +40,9 @@ namespace Project0
 
         public void removeAccount(Account toRemove)
         {
-            toRemove.isDeleted = true;
+            toRemove.isClosed = true;
             toRemove.isActive = false;
+            TotalActiveAccts--;
         }
 
         public void AddLoan(decimal amount)

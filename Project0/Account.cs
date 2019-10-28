@@ -9,7 +9,7 @@ namespace Project0
         public int AccountID { get; }
         public decimal Balance { get; set; }
         public bool isActive { get; set; } = true;
-        public bool isDeleted { get; set; }
+        public bool isClosed { get; set; }
         public List<Transaction> transactions = new List<Transaction>();
         public DateTime DateCreated { get; set; }
 

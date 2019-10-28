@@ -169,7 +169,8 @@ namespace Project0
                 "I: Pay Loan Installment\n" +
                 "J: Withdraw from Term Deposit\n" +
                 "K: Account Transaction history\n" +
-                "L: Log Out\n" +
+                "L: Loan Transaction History\n" +
+                "M: Log Out\n" +
                 HelpMessage);
             #endregion
 
@@ -250,6 +251,12 @@ namespace Project0
                     }
                 case "l":
                 case "L":
+                    {
+                        menu = LoanTransactionHistory;
+                        return;
+                    }
+                case "m":
+                case "M":
                     {
                         menu = LogOut;
                         return;
@@ -335,11 +342,11 @@ namespace Project0
         }
         private void CloseAccount()
         {
-            if (currentCustomer.TotalNumAccts > 0)
+            if (currentCustomer.TotalActiveAccts > 0)
             {
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Your accounts");
-                PrintAccounts();
+                PrintOpenAccounts();
                 Console.WriteLine("Enter the ID number of the account you would you like to close.");
                 int closeID = Utility.ReadInt();
                 if (UICheckForCommands(closeID))
@@ -360,6 +367,14 @@ namespace Project0
                     else if (toRemove.Balance < 0)
                     {
                         Console.WriteLine("This account has a negative balance. Please pay off the deficit before closing.\n" +
+                            "Press Enter to return to the main Menu");
+                        Console.ReadLine();
+                        menu = MainMenu;
+                        return;
+                    }
+                    else if (toRemove.isClosed)
+                    {
+                        Console.WriteLine("This account is already closed.\n" +
                             "Press Enter to return to the main Menu");
                         Console.ReadLine();
                         menu = MainMenu;
@@ -422,11 +437,11 @@ namespace Project0
         }
         private void Deposit()
         {
-            if (currentCustomer.TotalNumAccts > 0)
+            if (currentCustomer.TotalActiveAccts > 0)
             {
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Your Accounts");
-                PrintAccounts();
+                PrintOpenAccounts();
                 Console.WriteLine("Which account would you like to deposit into?");
                 int depID = Utility.ReadInt();
                 if (UICheckForCommands(depID))
@@ -436,26 +451,36 @@ namespace Project0
                 if (bank.confirmAccountOwnership(currentCustomer.CustomerID, depID))
                 {
                     Account dep = currentCustomer.findAccountByID(depID);
-                    Console.WriteLine($"How much would you like to deposit into account {depID}?");
-                    decimal amount = Utility.ReadDec();
-                    if (UICheckForCommands(amount))
+                    if (!dep.isClosed)
                     {
-                        return;
-                    }
-                    if (amount > 0)
-                    {
-                        Console.WriteLine($"Depositing ${amount} into account #{depID}... ");
-                        dep.Deposit(amount);
-                        Console.WriteLine($"Depositied ${amount}.");
-                        PrintAccount(dep);
-                        Console.WriteLine($"\n.Press Enter to return to the main menu.");
-                        Console.ReadLine();
-                        menu = MainMenu;
-                        return;
+                        Console.WriteLine($"How much would you like to deposit into account {depID}?");
+                        decimal amount = Utility.ReadDec();
+                        if (UICheckForCommands(amount))
+                        {
+                            return;
+                        }
+                        if (amount > 0)
+                        {
+                            Console.WriteLine($"Depositing ${amount} into account #{depID}... ");
+                            dep.Deposit(amount);
+                            Console.WriteLine($"Depositied ${amount}.");
+                            PrintAccount(dep);
+                            Console.WriteLine($"\n.Press Enter to return to the main menu.");
+                            Console.ReadLine();
+                            menu = MainMenu;
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Please enter a valid amount.\nPress Enter to try again.");
+                            Console.ReadLine();
+                            menu = Deposit;
+                            return;
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Please enter a valid amount.\nPress Enter to try again.");
+                        Console.WriteLine("That account is closed.\nPress Enter to try again.");
                         Console.ReadLine();
                         menu = Deposit;
                         return;
@@ -489,11 +514,11 @@ namespace Project0
         }
         private void Withdraw()
         {
-            if (currentCustomer.TotalNumAccts > 0)
+            if (currentCustomer.TotalActiveAccts > 0)
             {
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Your Accounts");
-                PrintAccounts();
+                PrintOpenAccounts();
                 Console.WriteLine("Which account would you like to withdraw from?");
                 int withdrawID = Utility.ReadInt();
                 if (UICheckForCommands(withdrawID))
@@ -503,28 +528,38 @@ namespace Project0
                 if (bank.confirmAccountOwnership(currentCustomer.CustomerID, withdrawID))
                 {
                     Account withdrawAcct = currentCustomer.findAccountByID(withdrawID);
-                    Console.WriteLine($"How much would you like to withdraw from account {withdrawID}?");
-                    decimal amount = Utility.ReadDec();
-                    if (UICheckForCommands(amount))
+                    if (!withdrawAcct.isClosed)
                     {
-                        return;
-                    }
-                    if (amount > 0)
-                    {
-                        Console.WriteLine($"Withdrawing ${amount} into account #{withdrawID}... ");
-                        withdrawAcct.Withdraw(amount);
-                        Console.WriteLine($"Withdrawing ${amount}.");
-                        PrintAccount(withdrawAcct);
-                        Console.WriteLine($"\n.Press Enter to continue.");
-                        Console.ReadLine();
-                        menu = MainMenu;
-                        return;
+                        Console.WriteLine($"How much would you like to withdraw from account {withdrawID}?");
+                        decimal amount = Utility.ReadDec();
+                        if (UICheckForCommands(amount))
+                        {
+                            return;
+                        }
+                        if (amount > 0)
+                        {
+                            Console.WriteLine($"Withdrawing ${amount} into account #{withdrawID}... ");
+                            withdrawAcct.Withdraw(amount);
+                            Console.WriteLine($"Withdrawing ${amount}.");
+                            PrintAccount(withdrawAcct);
+                            Console.WriteLine($"\n.Press Enter to continue.");
+                            Console.ReadLine();
+                            menu = MainMenu;
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Please enter a value greater than 0.\nPress Enter to try again.");
+                            Console.ReadLine();
+                            menu = Withdraw;
+                            return;
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Please enter a value greater than 0.\nPress Enter to try again.");
+                        Console.WriteLine("That account is closed.\nPress Enter to try again.");
                         Console.ReadLine();
-                        menu = Withdraw;
+                        menu = Deposit;
                         return;
                     }
                 }
@@ -556,11 +591,11 @@ namespace Project0
         }
         private void Transfer()
         {
-            if (currentCustomer.TotalNumAccts > 1)
+            if (currentCustomer.TotalActiveAccts > 1)
             {
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Your Accounts");
-                PrintAccounts();
+                PrintOpenAccounts();
                 Console.WriteLine("Which account would you like to transfer from?");
                 int fromID = Utility.ReadInt();
                 if (UICheckForCommands(fromID))
@@ -570,60 +605,90 @@ namespace Project0
                 if (bank.confirmAccountOwnership(currentCustomer.CustomerID, fromID))
                 {
                     Account fromAcct = currentCustomer.findAccountByID(fromID);
-                    Console.WriteLine("Which account would you like to transfer to?");
-                    int toID = Utility.ReadInt();
-                    if (UICheckForCommands(toID))
+                    if (!fromAcct.isClosed)
                     {
-                        return;
-                    }
-                    if (UICheckForCommands(toID))
-                    {
-                        return;
-                    }
-                    if (bank.confirmAccountOwnership(currentCustomer.CustomerID, toID))
-                    {
-                        if (fromID == toID)
+                        Console.WriteLine("Which account would you like to transfer to?");
+                        int toID = Utility.ReadInt();
+                        if (UICheckForCommands(toID))
                         {
-                            Console.WriteLine($"You can't transfer from an account to itself.\n.Press Enter to return to the main menu.");
-                            Console.ReadLine();
-                            menu = MainMenu;
                             return;
                         }
-                        else
+                        if (UICheckForCommands(toID))
                         {
-                            Account toAcct = currentCustomer.findAccountByID(toID);
-                            Console.WriteLine($"How much would you like to transfer?");
-                            decimal amount = Utility.ReadDec();
-                            if (UICheckForCommands(amount))
+                            return;
+                        }
+                        if (bank.confirmAccountOwnership(currentCustomer.CustomerID, toID))
+                        {
+                            if (fromID == toID)
                             {
+                                Console.WriteLine($"You can't transfer from an account to itself.\n.Press Enter to return to the main menu.");
+                                Console.ReadLine();
+                                menu = MainMenu;
                                 return;
                             }
-                            if (amount > 0)
+                            else
                             {
-                                if (amount <= fromAcct.Balance)
+                                Account toAcct = currentCustomer.findAccountByID(toID);
+                                if (!toAcct.isClosed)
                                 {
-                                    Console.WriteLine($"Transfering ${amount} from account {fromID} to account #{toID}... ");
-                                    currentCustomer.TransferFunds(fromAcct, toAcct, amount);
-                                    Console.WriteLine($"Transfered ${amount}.");
-                                    PrintAccount(fromAcct);
-                                    Console.WriteLine();
-                                    PrintAccount(toAcct);
-                                    Console.WriteLine($"\n.Press Enter to return to the main menu.");
-                                    Console.ReadLine();
-                                    menu = MainMenu;
-                                    return;
+                                    Console.WriteLine($"How much would you like to transfer?");
+                                    decimal amount = Utility.ReadDec();
+                                    if (UICheckForCommands(amount))
+                                    {
+                                        return;
+                                    }
+                                    if (amount > 0)
+                                    {
+                                        if (amount <= fromAcct.Balance)
+                                        {
+                                            Console.WriteLine($"Transfering ${amount} from account {fromID} to account #{toID}... ");
+                                            currentCustomer.TransferFunds(fromAcct, toAcct, amount);
+                                            Console.WriteLine($"Transfered ${amount}.");
+                                            PrintAccount(fromAcct);
+                                            Console.WriteLine();
+                                            PrintAccount(toAcct);
+                                            Console.WriteLine($"\n.Press Enter to return to the main menu.");
+                                            Console.ReadLine();
+                                            menu = MainMenu;
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"There aren't that many funds in Account #{fromID}.\n.Press Enter to try again.");
+                                            Console.ReadLine();
+                                            menu = Transfer;
+                                            return;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("That is not a valid amount.\nPress Enter to try again.");
+                                        Console.ReadLine();
+                                        menu = Transfer;
+                                        return;
+                                    }
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"There aren't that many funds in Account #{fromID}.\n.Press Enter to try again.");
+                                    Console.WriteLine("That account is closed.\nPress Enter to try again.");
                                     Console.ReadLine();
                                     menu = Transfer;
                                     return;
                                 }
                             }
+                        }
+                        else
+                        {
+                            if (toID > 0)
+                            {
+                                Console.WriteLine("That is not one of your accounts.\nPress Enter to return to try again.");
+                                Console.ReadLine();
+                                menu = Transfer;
+                                return;
+                            }
                             else
                             {
-                                Console.WriteLine("That is not a valid amount.\nPress Enter to try again.");
+                                Console.WriteLine("That isn't a valid account ID\nPress Enter to return to try again.");
                                 Console.ReadLine();
                                 menu = Transfer;
                                 return;
@@ -632,22 +697,11 @@ namespace Project0
                     }
                     else
                     {
-                        if (toID > 0)
-                        {
-                            Console.WriteLine("That is not one of your accounts.\nPress Enter to return to try again.");
-                            Console.ReadLine();
-                            menu = Transfer;
-                            return;
-                        }
-                        else
-                        {
-                            Console.WriteLine("That isn't a valid account ID\nPress Enter to return to try again.");
-                            Console.ReadLine();
-                            menu = Transfer;
-                            return;
-                        }
+                        Console.WriteLine("That account is closed.\nPress Enter to try again.");
+                        Console.ReadLine();
+                        menu = Transfer;
+                        return;
                     }
-
                 }
                 else
                 {
@@ -803,12 +857,24 @@ namespace Project0
                                     }
                                     if (amount > 0)
                                     {
-                                        Console.WriteLine($"Paying {amount}...");
-                                        loan.PayAmount(amount);
-                                        Console.WriteLine($"Paid {amount}.\n");
-                                        PrintLoan(loan);
-                                        menu = MainMenu;
-                                        return;
+                                        if (amount <= loan.Balance)
+                                        {
+                                            Console.WriteLine($"Paying {amount}...");
+                                            loan.PayAmount(amount);
+                                            Console.WriteLine($"Paid {amount}.\n");
+                                            Console.WriteLine("Press Enter to continue.");
+                                            Console.ReadLine();
+                                            PrintLoan(loan);
+                                            menu = MainMenu;
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("You don't owe that much on this loan. \nPress Enter to try again.");
+                                            Console.ReadLine();
+                                            menu = PayLoan;
+                                            return;
+                                        }
                                     }
                                     else
                                     {
@@ -821,42 +887,64 @@ namespace Project0
                             case "b":
                             case "B":
                                 {
-                                    Console.WriteLine("Your Accounts");
-                                    PrintAccounts();
-                                    Console.WriteLine("Which account would you like to make a payment from?");
-                                    int payAcctID = Utility.ReadInt();
-                                    if (UICheckForCommands(payAcctID))
+                                    if (currentCustomer.TotalActiveAccts > 0)
                                     {
-                                        return;
-                                    }
-                                    if (bank.confirmAccountOwnership(currentCustomer.CustomerID, payAcctID))
-                                    {
-                                        Account payAcct = currentCustomer.findAccountByID(payAcctID);
-                                        Console.WriteLine("How much would like to pay off?");
-                                        decimal amount = Utility.ReadDec();
-                                        if (UICheckForCommands(amount))
+                                        Console.WriteLine("Your Accounts");
+                                        PrintOpenAccounts();
+                                        Console.WriteLine("Which account would you like to make a payment from?");
+                                        int payAcctID = Utility.ReadInt();
+                                        if (UICheckForCommands(payAcctID))
                                         {
                                             return;
                                         }
-                                        if (amount > 0)
+                                        if (bank.confirmAccountOwnership(currentCustomer.CustomerID, payAcctID))
                                         {
-                                            if (amount <= payAcct.Balance)
+                                            Account payAcct = currentCustomer.findAccountByID(payAcctID);
+                                            if (!payAcct.isClosed)
                                             {
-                                                if (amount <= loan.Balance)
+                                                Console.WriteLine("How much would like to pay off?");
+                                                decimal amount = Utility.ReadDec();
+                                                if (UICheckForCommands(amount))
                                                 {
-                                                    Console.WriteLine($"Paying {amount}...");
-                                                    payAcct.WithdrawToLoan(loanID, amount);
-                                                    loan.PayAmount(amount);
-                                                    Console.WriteLine($"Paid {amount} from account #{payAcctID}.");
-                                                    PrintLoan(loan);
-                                                    Console.WriteLine("Press Enter to return to the main menu.");
-                                                    Console.ReadLine();
-                                                    menu = MainMenu;
                                                     return;
-                                                } else
+                                                }
+                                                if (amount > 0)
                                                 {
-                                                    Console.WriteLine("This loan is for less than that amount. Please enter a valid amount.\n" +
-                                                       "Press Enter to try again.");
+                                                    if (amount <= payAcct.Balance)
+                                                    {
+                                                        if (amount <= loan.Balance)
+                                                        {
+                                                            Console.WriteLine($"Paying {amount}...");
+                                                            payAcct.WithdrawToLoan(loanID, amount);
+                                                            loan.PayAmount(amount);
+                                                            Console.WriteLine($"Paid {amount} from account #{payAcctID}.");
+                                                            PrintLoan(loan);
+                                                            Console.WriteLine("Press Enter to return to the main menu.");
+                                                            Console.ReadLine();
+                                                            menu = MainMenu;
+                                                            return;
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine("This loan is for less than that amount. Please enter a valid amount.\n" +
+                                                               "Press Enter to try again.");
+                                                            Console.ReadLine();
+                                                            menu = PayLoan;
+                                                            return;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.WriteLine("You can't incur a negative balance in paying off a loan.\n" +
+                                                            "Press Enter to try again.");
+                                                        Console.ReadLine();
+                                                        menu = PayLoan;
+                                                        return;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("That is not a valid amount.\nPress Enter to try again.");
                                                     Console.ReadLine();
                                                     menu = PayLoan;
                                                     return;
@@ -864,8 +952,7 @@ namespace Project0
                                             }
                                             else
                                             {
-                                                Console.WriteLine("You can't incur a negative balance in paying off a loan.\n" +
-                                                    "Press Enter to try again.");
+                                                Console.WriteLine("That account is closed.\nPress Enter to try again.");
                                                 Console.ReadLine();
                                                 menu = PayLoan;
                                                 return;
@@ -873,28 +960,28 @@ namespace Project0
                                         }
                                         else
                                         {
-                                            Console.WriteLine("That is not a valid amount.\nPress Enter to try again.");
-                                            Console.ReadLine();
-                                            menu = PayLoan;
-                                            return;
+                                            if (payAcctID > 0)
+                                            {
+                                                Console.WriteLine("That is not one of your accounts.\nPress Enter to try again.");
+                                                Console.ReadLine();
+                                                menu = PayLoan;
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("That isn't a valid account ID\nPress Enter to try again.");
+                                                Console.ReadLine();
+                                                menu = PayLoan;
+                                                return;
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        if (payAcctID > 0)
-                                        {
-                                            Console.WriteLine("That is not one of your accounts.\nPress Enter to try again.");
-                                            Console.ReadLine();
-                                            menu = PayLoan;
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("That isn't a valid account ID\nPress Enter to try again.");
-                                            Console.ReadLine();
-                                            menu = PayLoan;
-                                            return;
-                                        }
+                                        Console.WriteLine("You don't have any accounts to transfer from.\n Pres enter to try again.");
+                                        Console.ReadLine();
+                                        menu = PayLoan;
+                                        return;
                                     }
                                 }
                             default:
@@ -981,42 +1068,61 @@ namespace Project0
                         case "b":
                         case "B":
                             {
-                                Console.WriteLine("Your Accounts");
-                                PrintAccounts();
-                                Console.WriteLine("Which account would you like to make a payment from?");
-                                int toAcctID = Utility.ReadInt();
-                                if (UICheckForCommands(toAcctID))
+                                if (currentCustomer.TotalActiveAccts > 0)
                                 {
-                                    return;
-                                }
-                                if (bank.confirmAccountOwnership(currentCustomer.CustomerID, toAcctID))
-                                {
-                                    Account toAcct = currentCustomer.findAccountByID(toAcctID);
-                                    Console.WriteLine($"Withdrawing full amount (${TermD.Amount}) to account #{toAcctID}...");
-                                    toAcct.DepositFromTermDeposit(TermD.TDID, TermD.Amount);
-                                    TermD.withdraw();
-                                    Console.WriteLine($"Withdrew full amount (${TermD.Amount}) to account #{toAcctID}");
-                                    Console.WriteLine("Press Enter to return to the main menu.");
-                                    Console.ReadLine();
-                                    menu = MainMenu;
-                                    return;
-                                }
-                                else
-                                {
-                                    if (toAcctID > 0)
+                                    Console.WriteLine("Your Accounts");
+                                    PrintOpenAccounts();
+                                    Console.WriteLine("Which account would you like to make a payment from?");
+                                    int toAcctID = Utility.ReadInt();
+                                    if (UICheckForCommands(toAcctID))
                                     {
-                                        Console.WriteLine("That is not one of your accounts.\nPress Enter to try again.");
-                                        Console.ReadLine();
-                                        menu = TermDepositWithdraw;
                                         return;
+                                    }
+                                    if (bank.confirmAccountOwnership(currentCustomer.CustomerID, toAcctID))
+                                    {
+                                        Account toAcct = currentCustomer.findAccountByID(toAcctID);
+                                        if (!toAcct.isClosed)
+                                        {
+                                            Console.WriteLine($"Withdrawing full amount (${TermD.Amount}) to account #{toAcctID}...");
+                                            toAcct.DepositFromTermDeposit(TermD.TDID, TermD.Amount);
+                                            TermD.withdraw();
+                                            Console.WriteLine($"Withdrew full amount (${TermD.Amount}) to account #{toAcctID}");
+                                            Console.WriteLine("Press Enter to return to the main menu.");
+                                            Console.ReadLine();
+                                            menu = MainMenu;
+                                            return;
+                                        } else
+                                        {
+                                            Console.WriteLine("That account is closed.\nPress Enter to try again.");
+                                            Console.ReadLine();
+                                            menu = TermDepositWithdraw;
+                                            return;
+                                        }
                                     }
                                     else
                                     {
-                                        Console.WriteLine("That isn't a valid account ID\nPress Enter to try again.");
-                                        Console.ReadLine();
-                                        menu = TermDepositWithdraw;
-                                        return;
+                                        if (toAcctID > 0)
+                                        {
+                                            Console.WriteLine("That is not one of your accounts.\nPress Enter to try again.");
+                                            Console.ReadLine();
+                                            menu = TermDepositWithdraw;
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("That isn't a valid account ID\nPress Enter to try again.");
+                                            Console.ReadLine();
+                                            menu = TermDepositWithdraw;
+                                            return;
+                                        }
                                     }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("You don't have any accounts to transfer that to.\nPress Enter to try again.");
+                                    Console.ReadLine();
+                                    menu = TermDepositWithdraw;
+                                    return;
                                 }
                             }
                         default:
@@ -1050,7 +1156,7 @@ namespace Project0
             {
                 Console.WriteLine(HelpMessage + "\n\n");
                 Console.WriteLine("Your Accounts");
-                PrintAccounts();
+                PrintAllAccounts();
                 Console.WriteLine("Which account would you like to look at?");
                 int acctID = Utility.ReadInt();
                 if (UICheckForCommands(acctID))
@@ -1092,6 +1198,54 @@ namespace Project0
                 return;
             }
         }
+        private void LoanTransactionHistory()
+        {
+            if (currentCustomer.Loans.Count > 0)
+            {
+                Console.WriteLine(HelpMessage + "\n\n");
+                Console.WriteLine("Your Loans");
+                PrintLoans();
+                Console.WriteLine("Which loan would you like to look at?");
+                int loanID = Utility.ReadInt();
+                if (UICheckForCommands(loanID))
+                {
+                    return;
+                }
+                if (bank.confirmAccountOwnership(currentCustomer.CustomerID, loanID))
+                {
+                    ListLoanTransactions(currentCustomer.findLoanByID(loanID));
+                    Console.WriteLine("\nPress Enter to return to the main menu.");
+                    Console.ReadLine();
+                    menu = MainMenu;
+                    return;
+                }
+                else
+                {
+                    if (loanID > 0)
+                    {
+                        Console.WriteLine("That is not one of your loans.\nPress Enter to try again.");
+                        Console.ReadLine();
+                        menu = LoanTransactionHistory;
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("That isn't a valid loan ID\nPress Enter to try again.");
+                        Console.ReadLine();
+                        menu = LoanTransactionHistory;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("You need at least one Loan to be able check it's transaction history.\n" +
+                    "Press Enter to return to the main menu.");
+                Console.ReadLine();
+                menu = MainMenu;
+                return;
+            }
+        }
         private void LogOut()
         {
             Console.WriteLine("Logging Out. Thank you for using CBASS.\nPress Enter to continue.");
@@ -1107,9 +1261,9 @@ namespace Project0
         }
         private void PrintAccount(Account acct)
         {
-            if (acct.isDeleted)
+            if (acct.isClosed)
             {
-                Console.Write("(Deleted) ");
+                Console.Write("(Closed) ");
             }
             Console.Write($"Account ID #{acct.AccountID} ");
             Console.WriteLine($"  :  Type: {acct.AccountType()}");
@@ -1120,12 +1274,12 @@ namespace Project0
             }
             Console.WriteLine();
         }
-        private void PrintAccounts()
+        private void PrintOpenAccounts()
         {
             Console.WriteLine("***Business Accounts***");
             foreach (BusinessAccount BA in currentCustomer.BAccounts)
             {
-                if (!BA.isDeleted)
+                if (!BA.isClosed)
                 {
                     PrintAccount(BA);
                 }
@@ -1133,10 +1287,23 @@ namespace Project0
             Console.WriteLine("***Checking Accounts***");
             foreach (CheckingAccount CA in currentCustomer.CAccounts)
             {
-                if (!CA.isDeleted)
+                if (!CA.isClosed)
                 {
                     PrintAccount(CA);
                 }
+            }
+        }
+        private void PrintAllAccounts()
+        {
+            Console.WriteLine("***Business Accounts***");
+            foreach (BusinessAccount BA in currentCustomer.BAccounts)
+            {
+                PrintAccount(BA);
+            }
+            Console.WriteLine("***Checking Accounts***");
+            foreach (CheckingAccount CA in currentCustomer.CAccounts)
+            {
+                PrintAccount(CA);
             }
         }
         private void PrintLoans()
@@ -1177,17 +1344,6 @@ namespace Project0
         }
         private void Summary(Customer customer)
         {
-            Console.WriteLine("***Business Accounts***");
-            foreach (BusinessAccount BA in customer.BAccounts)
-            {
-                PrintAccount(BA);
-            }
-            Console.WriteLine();
-            Console.WriteLine("***Checking Accounts***");
-            foreach (CheckingAccount CA in customer.CAccounts)
-            {
-                PrintAccount(CA);
-            }
             Console.WriteLine();
             PrintLoans();
             Console.WriteLine();
@@ -1199,6 +1355,16 @@ namespace Project0
             foreach (var trans in acct.transactions)
             {
                 PrintTransaction(trans);
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+        private void ListLoanTransactions(Loan loan)
+        {
+            Console.WriteLine($"Transactions for Loan #{loan.LoanID}");
+            foreach (var payment in loan.payments)
+            {
+                Console.WriteLine($"Date: {payment.PaymentTime}\nAmount ${payment.Amount}");
                 Console.WriteLine();
             }
             Console.WriteLine();
