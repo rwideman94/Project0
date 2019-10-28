@@ -990,7 +990,7 @@ namespace Project0
                                     if (TermD.MaturityCheck())
                                     {
 
-                                        Console.WriteLine($"Withdrawing full amount (${TermD.Amount})...");
+                                        Console.WriteLine($"Withdrawing full amount (${TermD.withdrawlAmount})...");
                                         TermD.withdraw();
                                         Console.WriteLine($"Withdrew full amount.");
                                         PrintAndWait("Press Enter to return to the main menu.");
@@ -1025,7 +1025,7 @@ namespace Project0
                                             if (!toAcct.isClosed)
                                             {
                                                 Console.WriteLine($"Withdrawing full amount (${TermD.Amount}) to account #{toAcctID}...");
-                                                toAcct.DepositFromTermDeposit(TermD.TDID, TermD.Amount);
+                                                toAcct.DepositFromTermDeposit(TermD.TDID, TermD.withdrawlAmount);
                                                 TermD.withdraw();
                                                 Console.WriteLine($"Withdrew full amount to account #{toAcctID}");
                                                 PrintAndWait("Press Enter to return to the main menu.");
@@ -1266,11 +1266,22 @@ namespace Project0
         }
         private void PrintTD(TermDeposit termD)
         {
-            Console.WriteLine($"Account ID #{termD.TDID}");
-            Console.Write($"Current Amount: ${termD.Amount}");
+            Console.WriteLine($"Account ID #{termD.TDID}  :  Base Amount: ${termD.Amount}");
+            Console.WriteLine($"Deposit Date - {termD.DateCreated.ToString("MM/dd/yy")}  :  Deposit Term of {termD.TermYears} years");
+            Console.Write($"Full Withdrawl Amount: ${termD.withdrawlAmount}");
             if (termD.MaturityCheck())
             {
-                Console.WriteLine($"  :  Ready to be withdrawn.");
+                if (termD.withdrawlAmount > 0){
+                    Console.WriteLine($"  :  Ready to be withdrawn.");
+                }
+                else
+                {
+                    Console.WriteLine($"  :  Already withdrawn.");
+                }
+
+            } else
+            {
+                Console.WriteLine($"  :  Not ready to be withdrawn.");
             }
             Console.WriteLine();
         }
