@@ -15,7 +15,7 @@ namespace Project0
         public DateTime DateCreated { get; set; }
         public bool withdraw()
         {
-            if (MaturityCheck())
+            if (MaturityCheck() && Amount > 0)
             {
                 Amount = 0;
                 return true;

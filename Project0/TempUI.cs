@@ -972,97 +972,109 @@ namespace Project0
                 if (bank.confirmTDOwnership(currentCustomerID, TDID))
                 {
                     TermDeposit TermD = currentCustomer.findTDByID(TDID);
-                    Console.WriteLine("Would you like to:\n" +
-                        "A: Receive payment in cash or\n" +
-                        "B: transfer to one of your other accounts?");
-                    string input = Utility.ReadString();
-                    if (UICheckForCommands(input))
+                    if (TermD.Amount > 0)
                     {
-                        return;
-                    }
-                    switch (input)
-                    {
-                        case "a":
-                        case "A":
-                            {
-                                if (TermD.MaturityCheck())
+                        Console.WriteLine("Would you like to:\n" +
+                            "A: Receive payment in cash or\n" +
+                            "B: transfer to one of your other accounts?");
+                        string input = Utility.ReadString();
+                        if (UICheckForCommands(input))
+                        {
+                            return;
+                        }
+                        switch (input)
+                        {
+                            case "a":
+                            case "A":
                                 {
-                                    Console.WriteLine($"Withdrawing full amount (${TermD.Amount})...");
-                                    TermD.withdraw();
-                                    Console.WriteLine($"Withdrew full amount.");
-                                    PrintAndWait("Press Enter to return to the main menu.");
-                                    menu = MainMenu;
-                                    return;
-                                }
-                                else
-                                {
-                                    PrintAndWait("That term deposit has not reached maturity yet.\n" +
-                                        "Press Enter to choose another term deposit.");
-                                    menu = TermDepositWithdraw;
-                                    return;
-                                }
-                            }
-                        case "b":
-                        case "B":
-                            {
-                                if (currentCustomer.TotalActiveAccts > 0)
-                                {
-                                    Console.WriteLine("Your Accounts");
-                                    PrintOpenAccounts();
-                                    Console.WriteLine("Which account would you like to make a payment from?");
-                                    int toAcctID = Utility.ReadInt();
-                                    if (UICheckForCommands(toAcctID))
+                                    if (TermD.MaturityCheck())
                                     {
+
+                                        Console.WriteLine($"Withdrawing full amount (${TermD.Amount})...");
+                                        TermD.withdraw();
+                                        Console.WriteLine($"Withdrew full amount.");
+                                        PrintAndWait("Press Enter to return to the main menu.");
+                                        menu = MainMenu;
+                                        return;
+
+                                    }
+                                    else
+                                    {
+                                        PrintAndWait("That term deposit has not reached maturity yet.\n" +
+                                            "Press Enter to choose another term deposit.");
+                                        menu = TermDepositWithdraw;
                                         return;
                                     }
-                                    if (bank.confirmAccountOwnership(currentCustomer.CustomerID, toAcctID))
+                                }
+                            case "b":
+                            case "B":
+                                {
+                                    if (currentCustomer.TotalActiveAccts > 0)
                                     {
-                                        Account toAcct = currentCustomer.findAccountByID(toAcctID);
-                                        if (!toAcct.isClosed)
+                                        Console.WriteLine("Your Accounts");
+                                        PrintOpenAccounts();
+                                        Console.WriteLine("Which account would you like to make a payment from?");
+                                        int toAcctID = Utility.ReadInt();
+                                        if (UICheckForCommands(toAcctID))
                                         {
-                                            Console.WriteLine($"Withdrawing full amount (${TermD.Amount}) to account #{toAcctID}...");
-                                            toAcct.DepositFromTermDeposit(TermD.TDID, TermD.Amount);
-                                            TermD.withdraw();
-                                            Console.WriteLine($"Withdrew full amount to account #{toAcctID}");
-                                            PrintAndWait("Press Enter to return to the main menu.");
-                                            menu = MainMenu;
                                             return;
-                                        } else
+                                        }
+                                        if (bank.confirmAccountOwnership(currentCustomer.CustomerID, toAcctID))
                                         {
-                                            PrintAndWait("That account is closed.\nPress Enter to try again.");
-                                            menu = TermDepositWithdraw;
-                                            return;
+                                            Account toAcct = currentCustomer.findAccountByID(toAcctID);
+                                            if (!toAcct.isClosed)
+                                            {
+                                                Console.WriteLine($"Withdrawing full amount (${TermD.Amount}) to account #{toAcctID}...");
+                                                toAcct.DepositFromTermDeposit(TermD.TDID, TermD.Amount);
+                                                TermD.withdraw();
+                                                Console.WriteLine($"Withdrew full amount to account #{toAcctID}");
+                                                PrintAndWait("Press Enter to return to the main menu.");
+                                                menu = MainMenu;
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                PrintAndWait("That account is closed.\nPress Enter to try again.");
+                                                menu = TermDepositWithdraw;
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (toAcctID > 0)
+                                            {
+                                                PrintAndWait("That is not one of your accounts.\nPress Enter to try again.");
+                                                menu = TermDepositWithdraw;
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                PrintAndWait("That isn't a valid account ID\nPress Enter to try again.");
+                                                menu = TermDepositWithdraw;
+                                                return;
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        if (toAcctID > 0)
-                                        {
-                                            PrintAndWait("That is not one of your accounts.\nPress Enter to try again.");
-                                            menu = TermDepositWithdraw;
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            PrintAndWait("That isn't a valid account ID\nPress Enter to try again.");
-                                            menu = TermDepositWithdraw;
-                                            return;
-                                        }
+                                        PrintAndWait("You don't have any accounts to transfer that to.\nPress Enter to try again.");
+                                        menu = TermDepositWithdraw;
+                                        return;
                                     }
                                 }
-                                else
+                            default:
                                 {
-                                    PrintAndWait("You don't have any accounts to transfer that to.\nPress Enter to try again.");
+                                    PrintAndWait("Please enter on of the available options.\nPress Enter to try again.");
                                     menu = TermDepositWithdraw;
                                     return;
                                 }
-                            }
-                        default:
-                            {
-                                PrintAndWait("Please enter on of the available options.\nPress Enter to try again.");
-                                menu = TermDepositWithdraw;
-                                return;
-                            }
+                        }
+                    }
+                    else
+                    {
+                        PrintAndWait("That term deposit has already been emptied.\n Press enter to try again.");
+                        menu = TermDepositWithdraw;
+                        return;
                     }
                 }
                 else
