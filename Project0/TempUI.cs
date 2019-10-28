@@ -272,6 +272,8 @@ namespace Project0
         }
         private void CustomerSummary()
         {
+            CustomerInfo();
+            Console.WriteLine();
             if (currentCustomer.TotalNumAccts > 0 || currentCustomer.Loans.Count > 0 || currentCustomer.TermDeposits.Count > 0)
             {
                 Console.WriteLine($"Accounts associated with Customer ID#{currentCustomer.CustomerID}");
@@ -1384,6 +1386,18 @@ namespace Project0
         {
             Console.WriteLine(s);
             Console.ReadLine();
+        }
+        private void CustomerInfo()
+        {
+            Console.WriteLine($"Customer ID #{currentCustomer.CustomerID} : {currentCustomer.LastName}, {currentCustomer.FirstName}");
+            if (currentCustomer.PhoneNumber == "")
+            {
+                Console.WriteLine($"No phone number associated with this account.");
+            } else
+            {
+                Console.WriteLine($"Associated Phone Number: {currentCustomer.PhoneNumber}");
+            }
+            
         }
     }
 }
