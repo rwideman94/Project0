@@ -16,7 +16,7 @@ namespace Project0
 
         public void Run()
         {
-            Console.WriteLine("Welcome to The Central Bank of Awfully Sinful Sailors (CBASS)");
+            Console.WriteLine("Welcome to Capital None Bank.");
             menu = new Menu(StartUp);
             for (; ; )
             {
@@ -324,8 +324,8 @@ namespace Project0
                     }
                 default:
                     {
-                        PrintAndWait("Invalid Account type. Did not create Account.\nPress Enter to return to main menu");
-                        menu = MainMenu;
+                        PrintAndWait("Invalid Account type. Did not create Account.\nPress Enter to try again.");
+                        menu = OpenAccount;
                         return;
                     }
             }
@@ -443,9 +443,9 @@ namespace Project0
                         }
                         if (amount > 0)
                         {
-                            Console.WriteLine($"Depositing ${amount} into account #{depID}... ");
+                            Console.WriteLine($"Depositing ${amount.ToString("F")} into account #{depID}... ");
                             dep.Deposit(amount);
-                            Console.WriteLine($"Depositied ${amount}.");
+                            Console.WriteLine($"Depositied ${amount.ToString("F")}.");
                             PrintAccount(dep);
                             PrintAndWait($"\n.Press Enter to return to the main menu.");
                             menu = MainMenu;
@@ -514,9 +514,9 @@ namespace Project0
                         }
                         if (amount > 0)
                         {
-                            Console.WriteLine($"Withdrawing ${amount} into account #{withdrawID}... ");
+                            Console.WriteLine($"Withdrawing ${amount.ToString("F")} into account #{withdrawID}... ");
                             withdrawAcct.Withdraw(amount);
-                            Console.WriteLine($"Withdrawing ${amount}.");
+                            Console.WriteLine($"Withdrawing ${amount.ToString("F")}.");
                             PrintAccount(withdrawAcct);
                             PrintAndWait($"\n.Press Enter to continue.");
                             menu = MainMenu;
@@ -610,9 +610,9 @@ namespace Project0
                                     {
                                         if (amount <= fromAcct.Balance)
                                         {
-                                            Console.WriteLine($"Transfering ${amount} from account {fromID} to account #{toID}... ");
+                                            Console.WriteLine($"Transfering ${amount.ToString("F")} from account {fromID} to account #{toID}... ");
                                             currentCustomer.TransferFunds(fromAcct, toAcct, amount);
-                                            Console.WriteLine($"Transfered ${amount}.");
+                                            Console.WriteLine($"Transfered ${amount.ToString("F")}.");
                                             PrintAccount(fromAcct);
                                             Console.WriteLine();
                                             PrintAccount(toAcct);
@@ -701,8 +701,8 @@ namespace Project0
             {
                 currentCustomer.AddLoan(amount);
                 Loan newLoan = currentCustomer.Loans[currentCustomer.Loans.Count - 1];
-                PrintAndWait($"New loan #{newLoan.LoanID} taken in the amount of {newLoan.Principal}.\n" +
-                    $"You will need to pay us back in the amount of {newLoan.Balance}." +
+                PrintAndWait($"New loan #{newLoan.LoanID} taken in the amount of {newLoan.Principal.ToString("F")}.\n" +
+                    $"You will need to pay us back in the amount of {newLoan.Balance.ToString("F")}." +
                     $"\nPress Enter to return to the main menu.");
                 menu = MainMenu;
                 return;
@@ -755,9 +755,9 @@ namespace Project0
                     currentCustomer.TermDeposits.Add(newTD);
                     //
 
-                    PrintAndWait($"New Term Deposit #{newTD.TDID} made in the amount of {amount}." +
+                    PrintAndWait($"New Term Deposit #{newTD.TDID} made in the amount of {amount.ToString("F")}." +
                         $"\nIn {newTD.TermYears} year(s) it will be ready for withdrawl in the " +
-                        $"amount of {newTD.withdrawlAmount}.\nPress Enter to return to the main menu.");
+                        $"amount of {newTD.withdrawlAmount.ToString("F")}.\nPress Enter to return to the main menu.");
                     menu = MainMenu;
                     return;
                 }
@@ -815,9 +815,9 @@ namespace Project0
                                     {
                                         if (amount <= loan.Balance)
                                         {
-                                            Console.WriteLine($"Paying {amount}...");
+                                            Console.WriteLine($"Paying {amount.ToString("F")}...");
                                             loan.PayAmount(amount);
-                                            Console.WriteLine($"Paid {amount}.\n");
+                                            Console.WriteLine($"Paid {amount.ToString("F")}.\n");
                                             PrintAndWait("Press Enter to continue.");
                                             PrintLoan(loan);
                                             menu = MainMenu;
@@ -867,10 +867,10 @@ namespace Project0
                                                     {
                                                         if (amount <= loan.Balance)
                                                         {
-                                                            Console.WriteLine($"Paying {amount}...");
+                                                            Console.WriteLine($"Paying {amount.ToString("F")}...");
                                                             payAcct.WithdrawToLoan(loanID, amount);
                                                             loan.PayAmount(amount);
-                                                            Console.WriteLine($"Paid {amount} from account #{payAcctID}.");
+                                                            Console.WriteLine($"Paid {amount.ToString("F")} from account #{payAcctID}.");
                                                             PrintLoan(loan);
                                                             PrintAndWait("Press Enter to return to the main menu.");
                                                             menu = MainMenu;
@@ -992,7 +992,7 @@ namespace Project0
                                     if (TermD.MaturityCheck())
                                     {
 
-                                        Console.WriteLine($"Withdrawing full amount (${TermD.withdrawlAmount})...");
+                                        Console.WriteLine($"Withdrawing full amount (${TermD.withdrawlAmount.ToString("F")})...");
                                         TermD.withdraw();
                                         Console.WriteLine($"Withdrew full amount.");
                                         PrintAndWait("Press Enter to return to the main menu.");
@@ -1026,7 +1026,7 @@ namespace Project0
                                             Account toAcct = currentCustomer.findAccountByID(toAcctID);
                                             if (!toAcct.isClosed)
                                             {
-                                                Console.WriteLine($"Withdrawing full amount (${TermD.Amount}) to account #{toAcctID}...");
+                                                Console.WriteLine($"Withdrawing full amount (${TermD.Amount.ToString("F")}) to account #{toAcctID}...");
                                                 toAcct.DepositFromTermDeposit(TermD.TDID, TermD.withdrawlAmount);
                                                 TermD.withdraw();
                                                 Console.WriteLine($"Withdrew full amount to account #{toAcctID}");
@@ -1183,13 +1183,13 @@ namespace Project0
         }
         private void LogOut()
         {
-            PrintAndWait("Logging Out. Thank you for using CBASS.\nPress Enter to continue.");
+            PrintAndWait("Logging Out. Thank you for using Capital None.\nPress Enter to continue.");
             menu = StartUp;
             return;
         }
         private void Exit()
         {
-            PrintAndWait("Thank you for using CBASS. Hit Enter to close the application.");
+            PrintAndWait("Thank you for using Capital None.\nHit Enter to close the application.");
             Environment.Exit(0);
         }
         private void PrintAccount(Account acct)
@@ -1200,7 +1200,7 @@ namespace Project0
             }
             Console.Write($"Account ID #{acct.AccountID} ");
             Console.WriteLine($"  :  Type: {acct.AccountType()}");
-            Console.Write($"Current Balance: ${acct.Balance}");
+            Console.Write($"Current Balance: ${acct.Balance.ToString("F")}");
             if (acct.Balance < 0)
             {
                 Console.Write($" (Including current overdraft fees of ${((BusinessAccount)acct).overdraftFees})");
@@ -1217,6 +1217,7 @@ namespace Project0
                     PrintAccount(BA);
                 }
             }
+            Console.WriteLine();
             Console.WriteLine("***Checking Accounts***");
             foreach (CheckingAccount CA in currentCustomer.CAccounts)
             {
@@ -1225,6 +1226,7 @@ namespace Project0
                     PrintAccount(CA);
                 }
             }
+            Console.WriteLine();
         }
         private void PrintAllAccounts()
         {
@@ -1233,11 +1235,13 @@ namespace Project0
             {
                 PrintAccount(BA);
             }
+            Console.WriteLine();
             Console.WriteLine("***Checking Accounts***");
             foreach (CheckingAccount CA in currentCustomer.CAccounts)
             {
                 PrintAccount(CA);
             }
+            Console.WriteLine();
         }
         private void PrintLoans()
         {
@@ -1246,6 +1250,7 @@ namespace Project0
             {
                 PrintLoan(loan);
             }
+            Console.WriteLine();
         }
         private void PrintTermDeposits()
         {
@@ -1254,12 +1259,13 @@ namespace Project0
             {
                 PrintTD(termD);
             }
+            Console.WriteLine();
         }
         private void PrintLoan(Loan loan)
         {
             Console.Write($"Term Deposit ID #{loan.LoanID}  :  ");
-            Console.WriteLine($"Principal Amount: ${loan.Principal}");
-            Console.Write($"Remaining Balance: ${loan.Balance}");
+            Console.WriteLine($"Principal Amount: ${loan.Principal.ToString("F")}");
+            Console.Write($"Remaining Balance: ${loan.Balance.ToString("F")}");
             if (loan.PaidOff)
             {
                 Console.Write($"  :  Paid off.");
@@ -1268,9 +1274,9 @@ namespace Project0
         }
         private void PrintTD(TermDeposit termD)
         {
-            Console.WriteLine($"Account ID #{termD.TDID}  :  Base Amount: ${termD.Amount}");
+            Console.WriteLine($"Account ID #{termD.TDID}  :  Base Amount: ${termD.Amount.ToString("F")}");
             Console.WriteLine($"Deposit Date - {termD.DateCreated.ToString("MM/dd/yy")}  :  Deposit Term of {termD.TermYears} years");
-            Console.Write($"Full Withdrawl Amount: ${termD.withdrawlAmount}");
+            Console.Write($"Full Withdrawl Amount: ${termD.withdrawlAmount.ToString("F")}");
             if (termD.MaturityCheck())
             {
                 if (termD.withdrawlAmount > 0){
@@ -1290,9 +1296,7 @@ namespace Project0
         private void Summary()
         {
             PrintAllAccounts();
-            Console.WriteLine();
             PrintLoans();
-            Console.WriteLine();
             PrintTermDeposits();
         }
         private void ListTransactions(Account acct)
@@ -1310,7 +1314,7 @@ namespace Project0
             Console.WriteLine($"Transactions for Loan #{loan.LoanID}");
             foreach (var payment in loan.payments)
             {
-                Console.WriteLine($"Date: {payment.PaymentTime}\nAmount ${payment.Amount}");
+                Console.WriteLine($"Date: {payment.PaymentTime}\nAmount ${payment.Amount.ToString("F")}");
                 Console.WriteLine();
             }
             Console.WriteLine();
@@ -1327,9 +1331,7 @@ namespace Project0
             {
                 Console.WriteLine($"Transferred to Account #{((TransferOut)trans).AccountIDTo}");
             }
-            else
-                Console.WriteLine($"Amount: ${trans.Amount}");
-            Console.WriteLine();
+            Console.WriteLine($"Amount: ${trans.Amount.ToString("F")}");
         }
         private bool UICheckForCommands(string s)
         {
