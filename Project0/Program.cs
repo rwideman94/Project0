@@ -6,11 +6,6 @@ namespace Project0
     {
         static void Main(string[] args)
         {
-            UITest();
-        }
-
-        public static void UITest()
-        {
             TempUI UI = new TempUI();
             UI.Run();
         }
